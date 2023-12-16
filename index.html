@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissor Game</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        header {
+            background-color: #56dfe9;
+            color: #fff;
+            padding: 20px;
+            width: 100%;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        .choices {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .choice {
+            cursor: pointer;
+            padding: 20px;
+            margin: 10px;
+            border: 2px solid #56dfe9;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+            font-size: 1em;
+            background-color: #fff;
+            color: #56dfe9;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .choice:hover {
+            background-color: #56dfe9;
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        footer {
+            background-color: #56dfe9;
+            color: #fff;
+            padding: 10px;
+            width: 100%;
+            margin-top: auto;
+        }
+        .history {
+            margin-top: 20px;
+            max-width: 600px;
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            border: 2px solid #56dfe9;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .history h2 {
+            color: #56dfe9;
+            margin-bottom: 10px;
+        }
+
+        /* Animation styles */
+        #animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            animation: driftAnimation 20s infinite linear; /* Adjust the animation properties */
+        }
+
+        @keyframes driftAnimation {
+            0% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(20px, 20px);
+            }
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+
+        /* Download button style */
+        #downloadBtn {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #56dfe9;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Rock, Paper, Scissor</h1>
+    </header>
+
+    <!-- Animated background -->
+    <div id="animated-background"></div>
+
+    <div class="choices">
+        <div class="choice" onclick="playGame('rock')">Rock</div>
+        <div class="choice" onclick="playGame('paper')">Paper</div>
+        <div class="choice" onclick="playGame('scissors')">Scissors</div>
+    </div>
+
+    <div id="result"></div>
+
+    <div class="history" id="historyContainer">
+        <h2>History</h2>
+        <ul id="historyList"></ul>
+        <button id="downloadBtn" onclick="downloadHistory()">Download History as PDF</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Dyutiraditya Patri</p>
+    </footer>
+
+    <!-- Include html2pdf library -->
+    <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+    <script>
+        const animatedBackground = document.getElementById('animated-background');
+
+        document.addEventListener('mousemove', (e) => {
+            const xPos = e.clientX / window.innerWidth - 0.5;
+            const yPos = e.clientY / window.innerHeight - 0.5;
+
+            animatedBackground.style.transform = `translate(${xPos * 50}px, ${yPos * 50}px)`;
+        });
+
+        function playGame(playerChoice) {
+            var choices = ['rock', 'paper', 'scissors'];
+            var computerChoice = choices[Math.floor(Math.random() * 3)];
+
+            var result = '';
+
+            if (playerChoice === computerChoice) {
+                result = "It's a tie! 😐";
+            } else if (
+                (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                (playerChoice === 'paper' && computerChoice === 'rock') ||
+                (playerChoice === 'scissors' && computerChoice === 'paper')
+            ) {
+                result = "You win! 🎉";
+            } else {
+                result = "You lose! 😢";
+            }
+
+            var historyList = document.getElementById('historyList');
+            var listItem = document.createElement('li');
+            listItem.textContent = `You chose ${playerChoice}, computer chose ${computerChoice}. Result: ${result}`;
+            historyList.appendChild(listItem);
+
+            document.getElementById('result').innerHTML = "Your choice: " + playerChoice + "<br>Computer's choice: " + computerChoice + "<br>Result: " + result;
+
+            setTimeout(function() {
+                document.getElementById('result').innerHTML = "";
+            }, 3000);
+        }
+
+        function downloadHistory() {
+            const historyContent = document.getElementById('historyContainer').innerHTML;
+
+            const historyContainer = document.createElement('div');
+            historyContainer.innerHTML = historyContent;
+
+            html2pdf(historyContainer, {
+                margin: 10,
+                filename: 'history.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            });
+        }
+    </script>
+
+</body>
+</html>
